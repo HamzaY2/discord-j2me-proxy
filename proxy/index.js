@@ -1,9 +1,3 @@
-if (typeof navigator === "undefined") {
-    global.navigator = { product: "Node" };
-} else if (!navigator.product) {
-    navigator.product = "Node";
-}
-
 const express = require('express');
 const axios = require('axios');
 const FormData = require('form-data');
