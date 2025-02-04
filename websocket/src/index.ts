@@ -1,12 +1,12 @@
 import { createServer } from 'net';
 import { Client } from "./Client";
 
-const { PORT = 8081 } = process.env;
+const { WS_PORT = 8081 } = process.env;
 
 const server = createServer((socket) => {
-    new Client(socket).handleConnection()
-})
+    new Client(socket).handleConnection();
+});
 
-server.listen(PORT, () => {
-    console.log(`TCP server is listening on port ${PORT}.`);
+server.listen(WS_PORT, () => {
+    console.log(`TCP server is listening on port ${WS_PORT}.`);
 });
