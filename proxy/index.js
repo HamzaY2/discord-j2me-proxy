@@ -886,6 +886,10 @@ app.get(`${BASE_L}/users/@me`, getToken, async (req, res) => {
     catch (e) { handleError(res, e); }
 });
 
+app.get("/", (req, res) => {
+    res.send("live");
+});
+
 // Send/edit/delete message (lite; same behavior as non-lite)
 app.post(`${BASE_L}/channels/:channel/messages`, getToken, sendMessage);
 app.post(`${BASE_L}/channels/:channel/messages/:message/edit`, getToken, editMessage);
