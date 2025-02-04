@@ -10,6 +10,7 @@ const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
 const EmojiConvertor = require('emoji-js');
+const os = require('os');
 const emoji = new EmojiConvertor();
 emoji.replace_mode = 'unified';
 
@@ -895,6 +896,18 @@ app.post(`${BASE_L}/channels/:channel/messages`, getToken, sendMessage);
 app.post(`${BASE_L}/channels/:channel/messages/:message/edit`, getToken, editMessage);
 app.get(`${BASE_L}/channels/:channel/messages/:message/delete`, getToken, deleteMessage);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+async function getPublicIpAddress() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error('Error fetching public IP:', error);
+        return '127.0.0.1';
+    }
+}
+
+app.listen(PORT, async () => {
+    const publicIp = await getPublicIpAddress();
+    console.log(`Server is running on http://${publicIp}:${PORT}`);
 });
