@@ -36,4 +36,4 @@ EXPOSE 80 8080 8081
 VOLUME /app/ssl
 
 # Start both applications using the startup script
-CMD ["/app/start.sh"]
+CMD ["/bin/bash", "/app/start.sh"]
