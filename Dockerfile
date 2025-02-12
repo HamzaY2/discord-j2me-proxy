@@ -1,5 +1,11 @@
 FROM node:alpine
 
+# Install system dependencies including nginx
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    bash \
+    nginx
+
 WORKDIR /app
 COPY . .
 
