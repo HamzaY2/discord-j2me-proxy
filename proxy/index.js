@@ -10,7 +10,6 @@ const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
 const EmojiConvertor = require('emoji-js');
-const os = require('os');
 const emoji = new EmojiConvertor();
 emoji.replace_mode = 'unified';
 
@@ -34,8 +33,10 @@ const CACHE_SIZE = 10000;
 
 function handleError(res, e) {
     if (e.response) {
+        console.log(e.response);
         res.status(e.response.status).send(e.response.data ?? e.response.statusText);
     } else {
+        console.log(e);
         res.status(500).send('Proxy error');
     }
 }
@@ -889,6 +890,7 @@ app.get(`${BASE_L}/users/@me`, getToken, async (req, res) => {
 
 app.get("/", (req, res) => {
     res.send("live");
+    console.log("Request received");
 });
 
 // Send/edit/delete message (lite; same behavior as non-lite)
@@ -896,18 +898,6 @@ app.post(`${BASE_L}/channels/:channel/messages`, getToken, sendMessage);
 app.post(`${BASE_L}/channels/:channel/messages/:message/edit`, getToken, editMessage);
 app.get(`${BASE_L}/channels/:channel/messages/:message/delete`, getToken, deleteMessage);
 
-async function getPublicIpAddress() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-    } catch (error) {
-        console.error('Error fetching public IP:', error);
-        return '127.0.0.1';
-    }
-}
-
-app.listen(PORT, async () => {
-    const publicIp = await getPublicIpAddress();
-    console.log(`Server is running on http://${publicIp}:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

@@ -6,14 +6,15 @@ COPY . .
 WORKDIR /app/proxy
 RUN npm install
 
-# WORKDIR /app/websocket
-# RUN npm install
-# RUN npm run build
+WORKDIR /app/websocket
+RUN npm ci
+RUN npm run build
 
 EXPOSE 8080
-#EXPOSE 8081
+EXPOSE 8081
+
+VOLUME /app/ssl
 
 WORKDIR /app
 
-# & node websocket/out/index.js
-CMD sh -c "node proxy/index.js && wait" 
+CMD sh -c "node proxy/index.js & node websocket/out/index.js && wait" 
