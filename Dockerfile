@@ -1,7 +1,7 @@
 FROM node:alpine
 
 # Install system dependencies including nginx
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apk update && apk add --no-cache \
     curl \
     bash \
     nginx
