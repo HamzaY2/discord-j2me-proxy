@@ -2,7 +2,6 @@ import os
 import re
 import json
 import logging
-import emoji
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Request, HTTPException, UploadFile, File, Form, Depends
 from fastapi.staticfiles import StaticFiles
@@ -75,8 +74,6 @@ def parse_message_content(content: str, show_guild_emoji: bool, convert_tags: bo
     if not show_guild_emoji:
         # Replace Discord custom emoji with :name:
         result = re.sub(r'<a?(:\w*:)\d{15,}>', r'\1', result)
-    # Replace Unicode emojis with colon style names (using the python-emoji package)
-    result = emoji.demojize(result)
     # Replace regional indicator symbols (U+1F1E6 - U+1F1FF) with textual representation
     result = re.sub(r'([\U0001F1E6-\U0001F1FF])',
                     lambda m: f":regional_indicator_{chr(ord(m.group(1)) - 0x1F1E6 + ord('a'))}:",
@@ -751,7 +748,6 @@ async def get_messages_lite(channel: str, request: Request, headers: dict = Depe
                     content_text = re.sub(r'<@(\d{15,})>', lambda m: f"@{user_cache.get(m.group(1), m.group(0))}", content_text)
                     content_text = re.sub(r'<#(\d{15,})>', lambda m: f"#{channel_cache.get(m.group(1), m.group(0))}", content_text)
                     content_text = re.sub(r'<a?(:\w*:)\d{15,}>', r'\1', content_text)
-                    content_text = emoji.demojize(content_text)
                     if msg.get("attachments"):
                         for att in msg["attachments"]:
                             if content_text:
