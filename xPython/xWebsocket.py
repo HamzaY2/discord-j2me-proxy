@@ -1,3 +1,5 @@
+# deploy this app on Render.com
+
 import socket
 import threading
 import json
@@ -168,7 +170,6 @@ class Client:
             self.handle_close()
     
     def handle_close(self):
-        # logging.info("Client disconnected.")
         if self.websocket:
             try:
                 self.websocket.close()
@@ -228,10 +229,7 @@ class Client:
                 logging.exception("Error sending typing indicator:")
     
     def connect_gateway(self, gateway_url: str):
-        #logging.info("Connecting to gateway: %s", gateway_url)
-        
         def on_message(ws, message):
-            #logging.info("Received message from gateway: %s", message)
             try:
                 parsed = json.loads(message)
                 t = parsed.get("t")
@@ -307,12 +305,65 @@ class Client:
     def send_object(self, obj: dict):
         self.send_message(json.dumps(obj))
 
+# --- HTTP Request Handler ---
+
+def handle_http(client_socket: socket.socket):
+    """
+    Handles an HTTP GET request.
+    If the request is for the root ("/"), responds with HTTP 200 and "live".
+    Otherwise, returns a 404 Not Found.
+    """
+    try:
+        request = client_socket.recv(1024).decode("utf-8", errors="replace")
+    except Exception as e:
+        logging.exception("Error reading HTTP request:")
+        client_socket.close()
+        return
+
+    request_line = request.splitlines()[0] if request.splitlines() else ""
+    parts = request_line.split()
+    if len(parts) >= 2 and parts[0] == "GET" and parts[1] == "/":
+        response_body = "live"
+        response = (
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: text/plain\r\n"
+            f"Content-Length: {len(response_body)}\r\n"
+            "Connection: close\r\n"
+            "\r\n"
+            f"{response_body}"
+        )
+    else:
+        response = (
+            "HTTP/1.1 404 Not Found\r\n"
+            "Content-Length: 0\r\n"
+            "Connection: close\r\n"
+            "\r\n"
+        )
+    try:
+        client_socket.sendall(response.encode("utf-8"))
+    except Exception as e:
+        logging.exception("Error sending HTTP response:")
+    finally:
+        client_socket.close()
+
 # --- TCP Server Setup ---
 
 def handle_client(client_socket: socket.socket, address):
-    #logging.info("Client connected: %s", address)
-    client = Client(client_socket)
-    client.handle_connection()
+    # Check if the connection is an HTTP GET request (using MSG_PEEK)
+    try:
+        client_socket.settimeout(0.5)
+        initial_data = client_socket.recv(1024, socket.MSG_PEEK)
+    except Exception as e:
+        initial_data = b""
+    finally:
+        client_socket.settimeout(None)
+    
+    # If the request starts with "GET ", handle as an HTTP request.
+    if initial_data.startswith(b"GET "):
+        handle_http(client_socket)
+    else:
+        client = Client(client_socket)
+        client.handle_connection()
 
 def start_tcp_server():
     WS_PORT = int(os.environ.get("WS_PORT", 8081))

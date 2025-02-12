@@ -3,3 +3,6 @@ httpx
 python-multipart
 uvicorn
 flask
+requests
+websocket-client
+emoji
