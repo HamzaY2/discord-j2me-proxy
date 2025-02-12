@@ -821,9 +821,19 @@ async def delete_message_lite(channel: str, message: str, headers: dict = Depend
 
 @app.get("/")
 async def root(request: Request):
-    logging.info("Request received")
-    return PlainTextResponse("live")
+    return PlainTextResponse("J2ME Discord Proxy")
 
+@app.get("/httpx")
+async def root(request: Request):
+    url = "https://cdn.discordapp.com/embed/avatars/0.png"
+    try :
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            return Response(content=resp.content, media_type="image/jpeg")
+    except Exception as e:
+        return PlainTextResponse(str(e))
+    
 # ---------------------------
 # To run:
 #   uvicorn your_module_name:app --host 0.0.0.0 --port 8080
