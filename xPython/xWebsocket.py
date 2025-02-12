@@ -375,13 +375,13 @@ async def handle_http(reader: asyncio.StreamReader, writer: asyncio.StreamWriter
 async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     try:
         # Read the first 4 bytes to check if the connection is an HTTP GET request.
-        initial = await reader.read(4)
+        initial = await reader.read(5)
         try:
             print("initial_data: " + initial.decode('utf-8', errors='replace'))
         except Exception:
             pass
 
-        if initial.startswith(b"GET "):
+        if initial.startswith(b"GET ") or initial.startswith(b"HEAD "):
             await handle_http(reader, writer, initial)
         else:
             client = Client(reader, writer, initial)
