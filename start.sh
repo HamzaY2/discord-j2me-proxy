@@ -1,13 +1,21 @@
 #!/bin/bash
 set -e
 
-# Start the proxy service
-node /app/proxy/index.js &
+run() {
+  local workdir="$1"
+  local message="$2"
+  shift 2
+  echo "$message"
+  if [ -n "$workdir" ]; then
+    (cd "$workdir" && exec "$@")
+  else
+    exec "$@"
+  fi
+}
 
-# Start the websocket service
-node /app/websocket/out/index.js &
-
-# Start NGINX in the foreground
-exec nginx -g 'daemon off;'
+# Start each service in the background.
+run "/app/proxy" "Starting proxy..." node . &
+run "/app/websocket" "Starting websocket..." node out &
+run "" "Starting nginx..." nginx -g "daemon off;" &
 
 wait
