@@ -20,8 +20,6 @@ upload_tokens = {}   # upload token mapping; key: token string, value: dict(toke
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
 # ---------------------------
 # Utility functions
 # ---------------------------
