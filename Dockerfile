@@ -33,7 +33,7 @@ RUN sed -i 's/\r$//' ./start.sh && chmod +x ./start.sh
 # Expose necessary ports
 EXPOSE 80 8080 8081
 
-VOLUME /app/ssl
+#VOLUME /app/ssl
 
 # Start both applications using the startup script
 CMD ["/bin/bash", "/app/start.sh"]
